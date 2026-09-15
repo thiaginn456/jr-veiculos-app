@@ -27,5 +27,10 @@ export function describeSupabaseError(error: unknown, fallback: string): string 
     return "As tabelas do banco de dados ainda não foram criadas neste projeto do Supabase. Rode o arquivo supabase/schema.sql no SQL Editor do Supabase.";
   }
 
+  // Erros lançados de propósito no código (ex: checagens de permissão antes
+  // do upload) já vêm com uma mensagem clara — usa ela em vez do fallback
+  // genérico.
+  if (error instanceof Error && error.message) return error.message;
+
   return fallback;
 }

@@ -105,7 +105,32 @@ export const carService = {
    */
   async uploadImage(file: File): Promise<string> {
     try {
-      const fileName = `${Date.now()}-${file.name}`;
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error('Faça login novamente para enviar fotos.');
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from(TABLES.PROFILES)
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+      if (!profile) {
+        throw new Error(
+          'Este usuário não está cadastrado como equipe no Supabase.',
+        );
+      }
+
+      const extension = file.name.includes('.')
+        ? `.${file.name.split('.').pop()?.toLowerCase()}`
+        : '';
+      const fileName = `${crypto.randomUUID()}${extension}`;
       const { error } = await supabase.storage
         .from(BUCKETS.VEHICLE_IMAGES)
         .upload(`public/${fileName}`, file);
