@@ -78,7 +78,9 @@ export const AdminCarForm: React.FC = () => {
       );
       setForm((prev) => ({ ...prev, imagens: [...prev.imagens, ...urls] }));
     } catch (error) {
-      toast.error("Erro ao enviar foto(s)");
+      const message =
+        error instanceof Error ? error.message : "Erro ao enviar foto(s)";
+      toast.error(message);
       console.error(error);
     } finally {
       setIsUploading(false);
