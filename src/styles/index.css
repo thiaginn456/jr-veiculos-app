@@ -1,0 +1,234 @@
+/* Estilos globais, fontes e camadas base do tema da aplicacao. */
+/* As fontes agora carregam via <link> no index.html (preconnect + apenas os
+   pesos realmente usados no site), o que permite ao navegador começar a
+   baixá-las mais cedo do que um @import dentro do CSS. */
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  overflow-x: hidden;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(220, 38, 38, 0.11),
+      transparent 22rem
+    ),
+    radial-gradient(
+      circle at 88% 72%,
+      rgba(255, 255, 255, 0.06),
+      transparent 18rem
+    ),
+    #000000;
+}
+
+.app-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: 0.42;
+  background-image:
+    radial-gradient(
+      circle at 22% 28%,
+      rgba(255, 255, 255, 0.18) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 76% 18%,
+      rgba(220, 38, 38, 0.22) 0 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 64% 84%,
+      rgba(255, 255, 255, 0.13) 0 1px,
+      transparent 2px
+    );
+  background-size:
+    190px 170px,
+    230px 210px,
+    260px 240px;
+}
+
+.page-transition {
+  animation: pageEnter 420ms ease both;
+}
+
+/* Scrollbar customizado */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseSubtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none;
+  }
+}
+
+/* Utilitários */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.btn-primary {
+  @apply px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 border border-red-600 text-red-400 hover:bg-red-600/10 font-semibold rounded-lg transition-colors;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-600 transition-colors;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent;
+}
+
+.stock-showcase {
+  background:
+    radial-gradient(
+      ellipse at 50% 48%,
+      rgba(220, 38, 38, 0.16) 0%,
+      rgba(100, 7, 7, 0.08) 32%,
+      rgba(3, 3, 3, 0) 70%
+    ),
+    #000000;
+}
+
+.vehicle-detail-glow {
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      rgba(220, 38, 38, 0.55) 0%,
+      rgba(100, 7, 7, 0.35) 35%,
+      rgba(3, 3, 3, 0) 72%
+    ),
+    #000000;
+}
+
+.stock-rail-outer {
+  position: relative;
+}
+
+.stock-rail-outer::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.stock-rail-wrap {
+  position: relative;
+  z-index: 1;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stock-rail-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.stock-rail {
+  position: relative;
+  height: 100%;
+}
+
+.stock-tile {
+  height: 100%;
+}

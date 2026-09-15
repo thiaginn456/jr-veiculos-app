@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="%BASE_URL%images/136ba5b6-9343-462e-bd70-daef33a77d8c.png" />
+  <link rel="apple-touch-icon" href="%BASE_URL%images/136ba5b6-9343-462e-bd70-daef33a77d8c.png" />
+
+  <!--
+    Restaura a rota real depois do redirecionamento feito pelo 404.html do
+    GitHub Pages (que não sabe nada das rotas do React Router). Sem isso,
+    acessar /estoque direto ou dar F5 numa rota interna cairia sempre na
+    home. Técnica: https://github.com/rafgraph/spa-github-pages
+  -->
+  <script>
+    (function (l) {
+      if (l.search[1] === "/") {
+        var decoded = l.search
+          .slice(1)
+          .split("&")
+          .map(function (s) {
+            return s.replace(/~and~/g, "&");
+          })
+          .join("?");
+        window.history.replaceState(
+          null,
+          "",
+          l.pathname.slice(0, -1) + decoded + l.hash,
+        );
+      }
+    })(window.location);
+  </script>
+
+  <!-- Título e descrição: usados pelo Google e por quem compartilha o link -->
+  <title>JR Veículos | Carros Seminovos em Salto do Itararé - PR</title>
+  <meta name="description"
+    content="JR Veículos: concessionária de carros seminovos em Salto do Itararé - PR. Confira nosso estoque atualizado, negocie direto pelo WhatsApp e simule seu financiamento." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="canonical" href="https://SEU-DOMINIO.com.br/" />
+
+  <!-- Open Graph / redes sociais -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="JR Veículos" />
+  <meta property="og:title" content="JR Veículos | Carros Seminovos em Salto do Itararé - PR" />
+  <meta property="og:description"
+    content="Concessionária de carros seminovos em Salto do Itararé - PR. Confira o estoque, negocie pelo WhatsApp e simule seu financiamento." />
+  <meta property="og:url" content="https://SEU-DOMINIO.com.br/" />
+  <meta property="og:image" content="https://SEU-DOMINIO.com.br/images/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="JR Veículos | Carros Seminovos em Salto do Itararé - PR" />
+  <meta name="twitter:description"
+    content="Concessionária de carros seminovos em Salto do Itararé - PR. Confira o estoque, negocie pelo WhatsApp e simule seu financiamento." />
+  <meta name="twitter:image" content="https://SEU-DOMINIO.com.br/images/og-image.png" />
+
+  <!-- Fontes: preconnect antecipa a conexão e o link carrega só os pesos usados no site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+
+  <!-- Dados estruturados da empresa (Schema.org / JSON-LD) — apenas informações reais e confirmadas -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutomotiveBusiness",
+    "name": "JR Veículos",
+    "image": "https://SEU-DOMINIO.com.br/images/og-image.png",
+    "url": "https://SEU-DOMINIO.com.br/",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Eduardo Bertoni - Centro",
+      "addressLocality": "Salto do Itararé",
+      "addressRegion": "PR",
+      "postalCode": "84945-000",
+      "addressCountry": "BR"
+    },
+    "areaServed": "Salto do Itararé e região",
+    "sameAs": [
+      "https://www.instagram.com/jrveiculos_salto/",
+      "https://www.google.com/maps?cid=15321261055603584940"
+    ]
+  }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

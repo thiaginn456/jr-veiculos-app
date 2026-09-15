@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <title>JR Veículos</title>
+  <!--
+    O GitHub Pages não sabe nada sobre as rotas do React Router (ele só
+    serve arquivos estáticos) — então acessar /estoque direto ou dar F5
+    numa rota interna cairia aqui, no 404 padrão do GitHub. Este script
+    guarda o caminho pedido numa query string e redireciona para a home,
+    que devolve pro caminho certo assim que o app carrega (ver index.html).
+    Técnica conhecida: https://github.com/rafgraph/spa-github-pages
+  -->
+  <script>
+    var pathSegmentsToKeep = 1; // "/jr-veiculos-app"
+    var l = window.location;
+    l.replace(
+      l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
+      l.pathname.split("/").slice(0, 1 + pathSegmentsToKeep).join("/") + "/?/" +
+      l.pathname.slice(1).split("/").slice(pathSegmentsToKeep).join("/").replace(/&/g, "~and~") +
+      (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+      l.hash
+    );
+  </script>
+</head>
+
+<body></body>
+
+</html>

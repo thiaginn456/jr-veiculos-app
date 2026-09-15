@@ -1,0 +1,70 @@
+name: Deploy para o GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita dois deploys rodando ao mesmo tempo; um push novo cancela o anterior
+# que ainda estiver em andamento.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build
+        env:
+          # Estas são as mesmas variáveis do .env do projeto. Nenhuma é
+          # secreta: VITE_SUPABASE_ANON_KEY é a chave pública/publishable,
+          # feita para ser exposta no navegador (protegida pelas políticas
+          # de RLS no banco, não por estar escondida aqui).
+          VITE_SUPABASE_URL: https://yqvecpdkfqkslauljomi.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_Q6ze9zmjm1NdiHtlr8_hEA_wcp399ab
+          VITE_APP_NAME: JR Veículos
+          VITE_APP_URL: https://thiaginn456.github.io/jr-veiculos-app
+          VITE_API_URL: https://thiaginn456.github.io/jr-veiculos-app
+          VITE_SITE_URL: https://thiaginn456.github.io/jr-veiculos-app
+          VITE_WHATSAPP_NUMBER: 5511999999999
+          VITE_WHATSAPP_API_URL: https://api.whatsapp.com/send
+          VITE_ENABLE_INSTAGRAM: "true"
+          VITE_ENABLE_MAPS: "true"
+        run: npm run build
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato do build
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

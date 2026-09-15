@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sitemap com as páginas fixas do site. As páginas de cada veículo
+  (/veiculo/...) são geradas dinamicamente a partir do banco de dados e
+  mudam com frequência (carro vendido, novo carro cadastrado etc.), então
+  não é seguro "inventar" essas URLs aqui de forma estática — o ideal é
+  gerar esse trecho automaticamente a partir do Supabase (ex: em um script
+  de build ou função server-side). Isso não foi implementado agora para não
+  acionar nenhum serviço novo sem autorização.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://SEU-DOMINIO.com.br/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://SEU-DOMINIO.com.br/estoque</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>
