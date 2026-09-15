@@ -79,6 +79,35 @@ export const Home: React.FC = () => {
       );
     };
 
+    // No celular, prender a seção e ficar decodificando um frame do vídeo a
+    // cada pixel rolado é pesado demais e trava a rolagem — mesmo com o
+    // vídeo mais leve. Em telas pequenas o vídeo só toca normal, em loop, e
+    // o cabeçalho reage apenas quando a hero sai da tela.
+    if (video && window.matchMedia("(max-width: 767px)").matches) {
+      video.loop = true;
+      const tryPlay = () => {
+        video.play().catch(() => {});
+      };
+      if (video.readyState >= 2) {
+        tryPlay();
+      } else {
+        video.addEventListener("loadeddata", tryPlay, { once: true });
+      }
+
+      scrollTrigger = ScrollTrigger.create({
+        trigger: heroEl,
+        start: "bottom top",
+        onEnter: () => updateHeaderBackground(true),
+        onLeaveBack: () => updateHeaderBackground(false),
+      });
+
+      return () => {
+        video.removeEventListener("loadeddata", tryPlay);
+        scrollTrigger?.kill();
+        updateHeaderBackground(false);
+      };
+    }
+
     const setupScroll = () => {
       // Seekar um vídeo comprimido é caro: se pedirmos vários seeks antes do
       // anterior terminar, o navegador enfileira/derruba pedidos e o vídeo
@@ -158,6 +187,27 @@ export const Home: React.FC = () => {
     const section = storeSectionRef.current;
     const video = storeVideoRef.current;
     if (!section || !video) return;
+
+    // Mesma lógica da hero: no celular o scroll-scrub trava mesmo com o
+    // vídeo mais leve, então aqui ele só toca em loop enquanto a seção
+    // estiver visível, sem prender a rolagem.
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      video.loop = true;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { threshold: 0.25 },
+      );
+      observer.observe(section);
+      return () => observer.disconnect();
+    }
 
     let scrollTrigger: ScrollTrigger | undefined;
     let targetTime: number | null = null;
