@@ -7,6 +7,7 @@ import { whatsappService } from "@/services/whatsappService";
 import { useSeo } from "@/lib/seo";
 import { vehiclePath } from "@/lib/slug";
 import { asset } from "@/lib/asset";
+import { useResponsiveVideoSource } from "@/lib/useResponsiveVideoSource";
 import toast from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -42,43 +43,20 @@ export const Home: React.FC = () => {
     moved: false,
   });
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+  useResponsiveVideoSource(
+    videoRef,
+    asset("videos/White_SUV_rotating_with_smoke_mobile-scrub.mp4"),
+    asset("videos/White_SUV_rotating_with_smoke_20260910123033-scrub.mp4"),
+  );
 
-    // O <source media="..."> só é avaliado quando o vídeo carrega pela
-    // primeira vez — se a pessoa girar o celular ou redimensionar a janela
-    // depois disso, o navegador não troca de vídeo sozinho. Este listener
-    // força a troca manualmente quando a tela cruza o breakpoint mobile.
-    const mobileSrc = asset(
-      "videos/White_SUV_rotating_with_smoke_mobile-scrub.mp4",
-    );
-    const desktopSrc = asset(
-      "videos/White_SUV_rotating_with_smoke_20260910123033-scrub.mp4",
-    );
-    const mql = window.matchMedia("(max-width: 767px)");
-
-    const handleBreakpointChange = (e: MediaQueryListEvent) => {
-      const wantedSrc = e.matches ? mobileSrc : desktopSrc;
-      if (video.currentSrc.endsWith(wantedSrc)) return;
-      const time = video.currentTime;
-      const wasSeeking = time > 0;
-      video.src = wantedSrc;
-      video.load();
-      if (wasSeeking) {
-        video.addEventListener(
-          "loadedmetadata",
-          () => {
-            video.currentTime = time;
-          },
-          { once: true },
-        );
-      }
-    };
-
-    mql.addEventListener("change", handleBreakpointChange);
-    return () => mql.removeEventListener("change", handleBreakpointChange);
-  }, []);
+  // Vídeo da loja: versão mobile bem mais leve (resolução e fps menores) —
+  // fazer scroll-scrub num vídeo grande travava a rolagem no celular, já
+  // que cada seek precisa decodificar um frame inteiro.
+  useResponsiveVideoSource(
+    storeVideoRef,
+    asset("videos/loja-conheca-scrub-mobile.mp4"),
+    asset("videos/loja-conheca-scrub.mp4"),
+  );
 
   useEffect(() => {
     const heroEl = heroRef.current;
@@ -557,6 +535,11 @@ export const Home: React.FC = () => {
           className="h-[45vh] min-h-[320px] w-full object-cover md:h-[55vh]"
           aria-label="Interior da loja JR Veículos"
         >
+          <source
+            media="(max-width: 767px)"
+            src={asset("videos/loja-conheca-scrub-mobile.mp4")}
+            type="video/mp4"
+          />
           <source
             src={asset("videos/loja-conheca-scrub.mp4")}
             type="video/mp4"
