@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { sellerService } from "@/services/sellerService";
+import { describeSupabaseError } from "@/lib/supabaseError";
 import toast from "react-hot-toast";
 
 export const AdminSellerForm: React.FC = () => {
@@ -58,7 +59,9 @@ export const AdminSellerForm: React.FC = () => {
       }
       navigate("/admin/vendedores");
     } catch (error) {
-      toast.error("Erro ao salvar vendedor");
+      toast.error(describeSupabaseError(error, "Erro ao salvar vendedor"), {
+        duration: 8000,
+      });
       console.error(error);
     } finally {
       setIsSaving(false);

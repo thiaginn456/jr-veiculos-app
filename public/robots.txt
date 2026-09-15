@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://SEU-DOMINIO.com.br/sitemap.xml
+Sitemap: https://jrveiculossalto.com/sitemap.xml

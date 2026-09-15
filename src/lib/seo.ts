@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 const RAW_SITE_URL =
   (import.meta.env.VITE_SITE_URL as string | undefined) ||
-  "https://SEU-DOMINIO.com.br";
+  window.location.origin;
 export const SITE_URL = RAW_SITE_URL.replace(/\/$/, "");
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.png`;
 

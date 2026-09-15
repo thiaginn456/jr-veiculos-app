@@ -1,0 +1,36 @@
+# Configuração para hospedagens Apache (ex: Hostinger).
+# Sem isso, acessar uma rota interna direto (ex: seusite.com/estoque) ou dar
+# F5 numa página assim retorna 404 — o Apache tenta achar um arquivo real
+# chamado "estoque" no servidor, mas quem sabe rotear isso é o React
+# (JavaScript), que só entra em ação depois que o index.html carrega.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Não reescreve requisições de arquivos ou pastas que realmente existem
+  # (JS, CSS, imagens, vídeos, etc.) — só cai no index.html quando o
+  # caminho pedido não corresponde a nada no servidor.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Compressão de texto (deixa o site carregar mais rápido)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# Cache no navegador para arquivos que não mudam de nome a cada build
+# (vídeos e imagens ficam com o mesmo nome; JS/CSS já têm hash no nome).
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType video/mp4 "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>

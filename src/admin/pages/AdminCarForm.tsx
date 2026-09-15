@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, Loader, Plus, X } from "lucide-react";
 import { carService } from "@/services/carService";
 import { Vehicle } from "@/types";
+import { describeSupabaseError } from "@/lib/supabaseError";
 import toast from "react-hot-toast";
 
 type CarFormState = Omit<Vehicle, "id" | "criado_em" | "atualizado_em">;
@@ -78,7 +79,9 @@ export const AdminCarForm: React.FC = () => {
       );
       setForm((prev) => ({ ...prev, imagens: [...prev.imagens, ...urls] }));
     } catch (error) {
-      toast.error("Erro ao enviar foto(s)");
+      toast.error(describeSupabaseError(error, "Erro ao enviar foto(s)"), {
+        duration: 8000,
+      });
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -134,7 +137,9 @@ export const AdminCarForm: React.FC = () => {
       }
       navigate("/admin/carros");
     } catch (error) {
-      toast.error("Erro ao salvar carro");
+      toast.error(describeSupabaseError(error, "Erro ao salvar carro"), {
+        duration: 8000,
+      });
       console.error(error);
     } finally {
       setIsSaving(false);
