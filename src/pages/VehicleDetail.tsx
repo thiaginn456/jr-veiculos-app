@@ -16,6 +16,7 @@ const combustivelLabels: Record<string, string> = {
   gasolina: "Gasolina",
   diesel: "Diesel",
   etanol: "Etanol",
+  flex: "Flex",
   hibrido: "Híbrido",
   eletrico: "Elétrico",
 };

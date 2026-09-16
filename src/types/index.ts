@@ -7,7 +7,7 @@ export interface Vehicle {
   versao: string;
   ano: number;
   km: number;
-  combustivel: 'gasolina' | 'diesel' | 'etanol' | 'hibrido' | 'eletrico';
+  combustivel: 'gasolina' | 'diesel' | 'etanol' | 'flex' | 'hibrido' | 'eletrico';
   cambio: 'manual' | 'automatico' | 'cvt';
   cor: string;
   categoria: string;

@@ -119,7 +119,7 @@ export const AdminCarForm: React.FC = () => {
       form.ano > new Date().getFullYear() + 1 ||
       !Number.isInteger(form.km) ||
       form.km < 0 ||
-      !/^\d{4}$/.test(form.final_placa)
+      !/^\d$/.test(form.final_placa)
     ) {
       toast.error("Confira os campos numéricos antes de salvar.");
       return;
@@ -353,6 +353,7 @@ export const AdminCarForm: React.FC = () => {
                   <option value="gasolina">Gasolina</option>
                   <option value="diesel">Diesel</option>
                   <option value="etanol">Etanol</option>
+                  <option value="flex">Flex</option>
                   <option value="hibrido">Híbrido</option>
                   <option value="eletrico">Elétrico</option>
                 </select>
@@ -425,10 +426,10 @@ export const AdminCarForm: React.FC = () => {
               onChange={(e) =>
                 setForm({ ...form, final_placa: onlyDigits(e.target.value) })
               }
-              placeholder="ex: 1234"
-              maxLength={4}
+              placeholder="ex: 1"
+              maxLength={1}
               inputMode="numeric"
-              pattern="[0-9]{4}"
+              pattern="[0-9]{1}"
               required
               className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:border-primary-600 font-poppins"
             />
