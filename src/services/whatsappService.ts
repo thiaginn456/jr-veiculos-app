@@ -2,7 +2,15 @@
 import { Vehicle } from '@/types';
 import { sellerService } from './sellerService';
 
-const WHATSAPP_API_URL = import.meta.env.VITE_WHATSAPP_API_URL;
+// O endereço do "clique para conversar" do WhatsApp é sempre o mesmo — não
+// é uma configuração que muda por ambiente. Antes isso dependia 100% da
+// variável VITE_WHATSAPP_API_URL existir no .env usado no build; se
+// faltasse (como aconteceu no build que foi pra produção, cujo .env só
+// tinha as duas variáveis do Supabase), o link virava
+// "undefined?phone=...", o que quebrava silenciosamente o botão
+// "Negociar" e o de contato. Agora há um valor padrão para nunca faltar.
+const WHATSAPP_API_URL =
+  import.meta.env.VITE_WHATSAPP_API_URL || 'https://api.whatsapp.com/send';
 
 export const whatsappService = {
   /**

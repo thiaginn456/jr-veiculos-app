@@ -281,6 +281,11 @@ export const Home: React.FC = () => {
     // Anima o scrollLeft nativo (em vez de um transform) para que o rail
     // também aceite arrastar direto com o dedo/mouse sem brigar com a
     // rolagem ligada à página.
+    // scrub:true (sem número) trava o rail exatamente na posição da rolagem,
+    // sem suavização/atraso. Com um número (ex: 0.5) o rail continua se
+    // ajustando por um instante depois que a pessoa já parou de rolar — se
+    // ela clicasse bem nessa hora, o carro "andava" embaixo do clique e o
+    // link não abria, parecendo que o carrossel não respondia a cliques.
     const animation = gsap.to(wrapEl, {
       scrollLeft: () => getDistance(),
       ease: "none",
@@ -288,7 +293,7 @@ export const Home: React.FC = () => {
         trigger: sectionEl,
         start: "top bottom",
         end: "bottom top",
-        scrub: 0.5,
+        scrub: true,
         invalidateOnRefresh: true,
       },
     });
@@ -329,6 +334,13 @@ export const Home: React.FC = () => {
   // deixamos o navegador cuidar do scroll nativamente (overflow-x): capturar
   // o toque aqui também atrapalhava o gesto nativo e travava a rolagem no
   // celular.
+  //
+  // IMPORTANTE: só chamamos setPointerCapture depois de confirmar que é um
+  // arrasto de verdade (o mouse se moveu), nunca no pointerdown. Capturar
+  // o pointer imediatamente faz o navegador entregar o "click" pro próprio
+  // wrap em vez do link do carro (o alvo do click passa a ser quem tem a
+  // captura, não o que está visualmente embaixo do cursor) — isso fazia um
+  // clique normal, sem arrastar nada, simplesmente não abrir o carro.
   const handleStockPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const wrap = stockWrapRef.current;
     if (
@@ -343,7 +355,6 @@ export const Home: React.FC = () => {
       startScrollLeft: wrap.scrollLeft,
       moved: false,
     };
-    wrap.setPointerCapture(e.pointerId);
   };
 
   const handleStockPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -351,8 +362,13 @@ export const Home: React.FC = () => {
     const state = dragStateRef.current;
     if (!wrap || !state.active) return;
     const delta = e.clientX - state.startX;
-    if (Math.abs(delta) > 5) state.moved = true;
-    wrap.scrollLeft = state.startScrollLeft - delta;
+    if (Math.abs(delta) > 5) {
+      if (!state.moved) wrap.setPointerCapture(e.pointerId);
+      state.moved = true;
+    }
+    if (state.moved) {
+      wrap.scrollLeft = state.startScrollLeft - delta;
+    }
   };
 
   const handleStockPointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
