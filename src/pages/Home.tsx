@@ -66,7 +66,6 @@ export const Home: React.FC = () => {
 
     let scrollTrigger: ScrollTrigger | undefined;
     let onSeeked: (() => void) | undefined;
-    let onLoadedMetadata: (() => void) | undefined;
     let videoCompleted = false;
 
     const updateHeaderBackground = (completed: boolean) => {
@@ -108,73 +107,64 @@ export const Home: React.FC = () => {
       };
     }
 
-    const setupScroll = () => {
-      // Seekar um vídeo comprimido é caro: se pedirmos vários seeks antes do
-      // anterior terminar, o navegador enfileira/derruba pedidos e o vídeo
-      // trava. Por isso guardamos só o alvo mais recente e só disparamos o
-      // próximo seek quando o atual já tiver terminado ("seeked").
-      let targetTime: number | null = null;
-      let seeking = false;
+    // Seekar um vídeo comprimido é caro: se pedirmos vários seeks antes do
+    // anterior terminar, o navegador enfileira/derruba pedidos e o vídeo
+    // trava. Por isso guardamos só o alvo mais recente e só disparamos o
+    // próximo seek quando o atual já tiver terminado ("seeked").
+    let targetTime: number | null = null;
+    let seeking = false;
 
-      const seekTo = (time: number) => {
-        if (!video) return;
-        if (seeking) {
-          targetTime = time;
-          return;
-        }
-        if (Math.abs(video.currentTime - time) < 0.03) return;
-        seeking = true;
-        video.currentTime = time;
-      };
-
-      onSeeked = () => {
-        seeking = false;
-        if (targetTime !== null) {
-          const next = targetTime;
-          targetTime = null;
-          seekTo(next);
-        }
-      };
-
-      video?.addEventListener("seeked", onSeeked);
-
-      // Efeito de scroll na hero: fixa a seção e avança o frame do vídeo
-      // conforme a página rola, depois libera a rolagem normal. O texto
-      // permanece parado e visível — só o vídeo avança.
-      scrollTrigger = ScrollTrigger.create({
-        trigger: heroEl,
-        start: "top top",
-        end: "+=90%",
-        pin: true,
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const fadeProgress = Math.min(self.progress / 0.25, 1);
-          gsap.set(carTitleRef.current, {
-            opacity: 1 - fadeProgress * 0.6,
-          });
-          updateHeaderBackground(self.progress >= 0.999);
-          if (video && video.duration) {
-            seekTo(self.progress * video.duration);
-          }
-        },
-      });
+    const seekTo = (time: number) => {
+      if (!video) return;
+      if (seeking) {
+        targetTime = time;
+        return;
+      }
+      if (Math.abs(video.currentTime - time) < 0.03) return;
+      seeking = true;
+      video.currentTime = time;
     };
 
-    if (video) {
-      if (video.readyState >= 1) {
-        setupScroll();
-      } else {
-        onLoadedMetadata = () => setupScroll();
-        video.addEventListener("loadedmetadata", onLoadedMetadata, {
-          once: true,
-        });
+    onSeeked = () => {
+      seeking = false;
+      if (targetTime !== null) {
+        const next = targetTime;
+        targetTime = null;
+        seekTo(next);
       }
-    }
+    };
+
+    video?.addEventListener("seeked", onSeeked);
+
+    // O pin e o "end" (+=90%) não dependem do vídeo estar carregado — só a
+    // busca de frame (seekTo) precisa esperar o vídeo ficar pronto, e isso
+    // já é tratado pelo "if (video.duration)" abaixo. Por isso o
+    // ScrollTrigger é criado imediatamente, sem esperar "loadedmetadata".
+    // Adiar a criação do pin fazia o espaçador (que reserva o espaço de
+    // rolagem da seção) aparecer só depois que o vídeo carregasse — ao
+    // voltar pra home vindo de outra página (o vídeo já tinha saído do
+    // cache do navegador e precisa recarregar), isso inseria uma faixa
+    // grande no meio da página um instante depois do primeiro render,
+    // empurrando o conteúdo e fazendo a rolagem "pular"/travar.
+    scrollTrigger = ScrollTrigger.create({
+      trigger: heroEl,
+      start: "top top",
+      end: "+=90%",
+      pin: true,
+      scrub: 0.5,
+      onUpdate: (self) => {
+        const fadeProgress = Math.min(self.progress / 0.25, 1);
+        gsap.set(carTitleRef.current, {
+          opacity: 1 - fadeProgress * 0.6,
+        });
+        updateHeaderBackground(self.progress >= 0.999);
+        if (video && video.duration) {
+          seekTo(self.progress * video.duration);
+        }
+      },
+    });
 
     return () => {
-      if (video && onLoadedMetadata) {
-        video.removeEventListener("loadedmetadata", onLoadedMetadata);
-      }
       if (video && onSeeked) {
         video.removeEventListener("seeked", onSeeked);
       }
@@ -232,38 +222,40 @@ export const Home: React.FC = () => {
       }
     };
 
-    const setupScroll = () => {
-      // "+=100%" sem qualificador soma 100% da altura da JANELA, não da
-      // seção — com a seção "achatada" (bem mais baixa que a tela) isso
-      // reservava um espaço de scroll bem maior que o vídeo, deixando-o
-      // "preso" na tela por um trecho enorme antes de liberar a rolagem.
-      // Usar a própria altura da seção mantém o pin proporcional ao que
-      // aparece na tela.
-      scrollTrigger = ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: () => `+=${section.offsetHeight}`,
-        pin: true,
-        scrub: 0.5,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          if (video.duration) {
-            seekTo(self.progress * video.duration);
-          }
-        },
-      });
-    };
-
     video.addEventListener("seeked", onSeeked);
-    if (video.readyState >= 1) {
-      setupScroll();
-    } else {
-      video.addEventListener("loadedmetadata", setupScroll, { once: true });
-    }
+
+    // O "end" usa section.offsetHeight (CSS, sempre disponível) — não
+    // precisa esperar o vídeo carregar pra criar o pin. Esperar
+    // "loadedmetadata" (como era antes) fazia o espaçador da seção surgir
+    // de repente um instante depois do primeiro render sempre que o vídeo
+    // não estava no cache do navegador — por exemplo ao voltar pra home
+    // vindo de outra página. Essa inserção tardia empurra o conteúdo que
+    // já estava na tela e o navegador ajusta a rolagem pra compensar
+    // (scroll anchoring), o que parecia o vídeo "aparecer antes da hora e
+    // travar". Criar o pin já de cara evita esse pulo.
+    //
+    // "+=100%" sem qualificador soma 100% da altura da JANELA, não da
+    // seção — com a seção "achatada" (bem mais baixa que a tela) isso
+    // reservava um espaço de scroll bem maior que o vídeo, deixando-o
+    // "preso" na tela por um trecho enorme antes de liberar a rolagem.
+    // Usar a própria altura da seção mantém o pin proporcional ao que
+    // aparece na tela.
+    scrollTrigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => `+=${section.offsetHeight}`,
+      pin: true,
+      scrub: 0.5,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        if (video.duration) {
+          seekTo(self.progress * video.duration);
+        }
+      },
+    });
 
     return () => {
       video.removeEventListener("seeked", onSeeked);
-      video.removeEventListener("loadedmetadata", setupScroll);
       scrollTrigger?.kill();
     };
   }, []);
