@@ -1,7 +1,7 @@
 // Formulario administrativo para criar ou editar os dados de um veiculo.
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ChevronLeft, Loader, Plus, X } from "lucide-react";
+import { ChevronLeft, Loader, Plus, Star, X } from "lucide-react";
 import { carService } from "@/services/carService";
 import { Vehicle } from "@/types";
 import { describeSupabaseError } from "@/lib/supabaseError";
@@ -95,6 +95,17 @@ export const AdminCarForm: React.FC = () => {
     }));
   };
 
+  // A "foto de capa" é sempre a primeira do array — é ela que aparece no
+  // estoque da home, nos cards e como primeira foto na página do veículo.
+  // Definir uma capa nova só reordena o array, trazendo a foto escolhida
+  // para o início.
+  const handleSetCapa = (url: string) => {
+    setForm((prev) => ({
+      ...prev,
+      imagens: [url, ...prev.imagens.filter((imagem) => imagem !== url)],
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -182,27 +193,52 @@ export const AdminCarForm: React.FC = () => {
             <h2 className="text-xl font-bold text-white font-montserrat mb-4">
               Fotos
             </h2>
+            <p className="mb-3 text-xs text-dark-400 font-poppins">
+              A foto de capa é a que aparece no estoque e nos cards do site.
+              Passe o mouse numa outra foto e clique na estrela pra trocar.
+            </p>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {form.imagens.map((url) => (
-                <div
-                  key={url}
-                  className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-dark-600 bg-dark-700"
-                >
-                  <img
-                    src={url}
-                    alt="Foto do veículo"
-                    className="h-full w-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImagem(url)}
-                    className="absolute right-2 top-2 rounded-full bg-dark-950/80 p-1 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"
-                    aria-label="Remover foto"
+              {form.imagens.map((url, index) => {
+                const isCapa = index === 0;
+                return (
+                  <div
+                    key={url}
+                    className={`group relative aspect-[4/3] overflow-hidden rounded-lg border bg-dark-700 ${
+                      isCapa ? "border-primary-600" : "border-dark-600"
+                    }`}
                   >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
+                    <img
+                      src={url}
+                      alt="Foto do veículo"
+                      className="h-full w-full object-cover"
+                    />
+                    {isCapa ? (
+                      <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-primary-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                        <Star size={10} className="fill-white" />
+                        Capa
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSetCapa(url)}
+                        className="absolute left-2 top-2 rounded-full bg-dark-950/80 p-1 text-white opacity-0 transition group-hover:opacity-100 hover:bg-primary-600"
+                        aria-label="Definir como foto de capa"
+                        title="Definir como foto de capa"
+                      >
+                        <Star size={14} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImagem(url)}
+                      className="absolute right-2 top-2 rounded-full bg-dark-950/80 p-1 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"
+                      aria-label="Remover foto"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                );
+              })}
 
               <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-dark-600 text-dark-400 transition-colors hover:border-primary-600 hover:text-primary-400">
                 {isUploading ? (
