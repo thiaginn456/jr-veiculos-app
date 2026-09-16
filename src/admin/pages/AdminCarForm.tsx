@@ -431,6 +431,7 @@ export const AdminCarForm: React.FC = () => {
                   <option value="hatchback">Hatchback</option>
                   <option value="picape">Picape</option>
                   <option value="van">Van</option>
+                  <option value="ret">Ret</option>
                 </select>
               </div>
             </div>
