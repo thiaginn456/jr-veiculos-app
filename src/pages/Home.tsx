@@ -18,9 +18,9 @@ export const Home: React.FC = () => {
   const { vehicles, isLoading } = useVehicles({ ordem: "recentes" });
 
   useSeo({
-    title: "JR Veículos | Carros Seminovos em Salto do Itararé - PR",
+    title: "JR Veículos - Salto do Itararé",
     description:
-      "JR Veículos: concessionária de carros seminovos em Salto do Itararé - PR. Confira nosso estoque atualizado, negocie direto pelo WhatsApp e simule seu financiamento.",
+      "JR Veículos em Salto do Itararé. Confira carros seminovos, financiamento e negocie direto pelo WhatsApp.",
     path: "/",
   });
   const [nome, setNome] = useState("");

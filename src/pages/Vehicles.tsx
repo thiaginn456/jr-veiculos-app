@@ -34,16 +34,18 @@ export const Vehicles: React.FC = () => {
   }, []);
 
   useSeo({
-    title: "Estoque de Carros Seminovos em Salto do Itararé - PR | JR Veículos",
+    title: "Estoque de Carros Seminovos | JR Veículos - Salto do Itararé",
     description:
-      "Veja carros usados e seminovos disponíveis na JR Veículos, em Salto do Itararé - PR. Filtre por marca, modelo e ano, e negocie direto pelo WhatsApp.",
+      "Veja o estoque de carros seminovos da JR Veículos em Salto do Itararé - PR. Filtre por marca, modelo e ano e fale pelo WhatsApp.",
     path: "/estoque",
   });
 
   return (
     <div className="vehicle-detail-glow min-h-screen pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4">
-        <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Estoque" }]} />
+        <Breadcrumbs
+          items={[{ label: "Início", href: "/" }, { label: "Estoque" }]}
+        />
         <h1 className="mb-1 text-2xl font-black uppercase text-white md:text-3xl">
           Estoque de <span className="text-primary-500">carros seminovos</span>
         </h1>
