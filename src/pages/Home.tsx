@@ -84,14 +84,13 @@ export const Home: React.FC = () => {
     // o cabeçalho reage apenas quando a hero sai da tela.
     if (video && window.matchMedia("(max-width: 767px)").matches) {
       video.loop = true;
-      const tryPlay = () => {
-        video.play().catch(() => {});
-      };
-      if (video.readyState >= 2) {
-        tryPlay();
-      } else {
-        video.addEventListener("loadeddata", tryPlay, { once: true });
-      }
+      // Chama play() direto, sem esperar o evento "loadeddata": no Safari do
+      // iPhone o vídeo só passa a baixar dado de verdade (além dos
+      // metadados) depois que play() é chamado, já que o elemento não tem o
+      // atributo nativo "autoplay". Esperar "loadeddata" antes travava tudo
+      // num impasse — o evento nunca disparava porque nada tinha sido
+      // pedido ainda — e a hero simplesmente não carregava no iPhone.
+      video.play().catch(() => {});
 
       scrollTrigger = ScrollTrigger.create({
         trigger: heroEl,
@@ -101,7 +100,6 @@ export const Home: React.FC = () => {
       });
 
       return () => {
-        video.removeEventListener("loadeddata", tryPlay);
         scrollTrigger?.kill();
         updateHeaderBackground(false);
       };
