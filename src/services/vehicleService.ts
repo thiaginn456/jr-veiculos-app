@@ -19,6 +19,9 @@ const uniqueTextOptions = (values?: (string | null | undefined)[]) => {
   }, []);
 };
 
+const normalizeFilterOption = (value: string) =>
+  value.trim().toLocaleLowerCase('pt-BR');
+
 export const vehicleService = {
   /**
    * Obter todos os veículos com filtros
@@ -159,25 +162,17 @@ export const vehicleService = {
   /**
    * Obter opções únicas para filtros
    */
-  async getFilterOptions(marca?: string): Promise<{
+  async getFilterOptions(): Promise<{
     marcas: string[];
     modelos: string[];
+    modelosPorMarca: Record<string, string[]>;
     anos: number[];
     categorias: string[];
     combustiveis: string[];
     cambios: string[];
   }> {
     try {
-      let modelosQuery = supabase
-        .from(TABLES.VEHICLES)
-        .select('modelo')
-        .eq('status', 'disponivel');
-
-      if (marca) {
-        modelosQuery = modelosQuery.ilike('marca', `%${marca}%`);
-      }
-
-      const [marcas, modelos, anos, categorias, combustiveis, cambios] =
+      const [marcas, modelosData, anos, categorias, combustiveis, cambios] =
         await Promise.all([
           supabase
             .from(TABLES.VEHICLES)
@@ -186,9 +181,11 @@ export const vehicleService = {
             .then(({ data }) =>
               uniqueTextOptions(data?.map((v) => v.marca))
             ),
-          modelosQuery.then(({ data }) =>
-            uniqueTextOptions(data?.map((v) => v.modelo))
-          ),
+          supabase
+            .from(TABLES.VEHICLES)
+            .select('marca, modelo')
+            .eq('status', 'disponivel')
+            .then(({ data }) => data || []),
           supabase
             .from(TABLES.VEHICLES)
             .select('ano')
@@ -219,9 +216,23 @@ export const vehicleService = {
             ),
         ]);
 
+      const modelosPorMarca = (modelosData as { marca: string; modelo: string }[]).reduce<Record<string, string[]>>(
+        (options, vehicle) => {
+          const marca = vehicle.marca?.trim();
+          const modelo = vehicle.modelo?.trim();
+          if (!marca || !modelo) return options;
+
+          const marcaKey = normalizeFilterOption(marca);
+          options[marcaKey] = uniqueTextOptions([...(options[marcaKey] || []), modelo]);
+          return options;
+        },
+        {},
+      );
+
       return {
         marcas: marcas.sort() as string[],
-        modelos: modelos.sort() as string[],
+        modelos: uniqueTextOptions(modelosData.map((vehicle) => vehicle.modelo)).sort(),
+        modelosPorMarca,
         anos: (anos as number[]).sort((a, b) => b - a),
         categorias: categorias.sort() as string[],
         combustiveis: combustiveis.sort() as string[],
@@ -232,6 +243,7 @@ export const vehicleService = {
       return {
         marcas: [],
         modelos: [],
+        modelosPorMarca: {},
         anos: [],
         categorias: [],
         combustiveis: [],

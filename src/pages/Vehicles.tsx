@@ -48,6 +48,7 @@ export const Vehicles: React.FC = () => {
   const [filterOptions, setFilterOptions] = useState<{
     marcas: string[];
     modelos: string[];
+    modelosPorMarca: Record<string, string[]>;
     anos: number[];
     categorias: string[];
     combustiveis: string[];
@@ -55,6 +56,7 @@ export const Vehicles: React.FC = () => {
   }>({
     marcas: [],
     modelos: [],
+    modelosPorMarca: {},
     anos: [],
     categorias: [],
     combustiveis: [],
@@ -66,16 +68,13 @@ export const Vehicles: React.FC = () => {
     setFilters((current) => ({ ...current, ...changes, pagina: 1 }));
   };
 
-  const updateBrand = (marca?: string) => {
-    setFilters((current) => ({
-      ...current,
-      marca,
-      modelo: undefined,
-      pagina: 1,
-    }));
-  };
-
   const clearFilters = () => setFilters({});
+
+  const modelsForSelectedBrand = filters.marca
+    ? filterOptions.modelosPorMarca[
+        filters.marca.trim().toLocaleLowerCase("pt-BR")
+      ] || []
+    : filterOptions.modelos;
 
   const activeFilters = [
     filters.marca && { key: "marca", label: filters.marca },
@@ -104,17 +103,18 @@ export const Vehicles: React.FC = () => {
   }, [filters]);
 
   useEffect(() => {
-    vehicleService.getFilterOptions(filters.marca).then((options) =>
+    vehicleService.getFilterOptions().then((options) =>
       setFilterOptions({
         marcas: options.marcas,
         modelos: options.modelos,
+        modelosPorMarca: options.modelosPorMarca,
         anos: options.anos,
         categorias: options.categorias,
         combustiveis: options.combustiveis,
         cambios: options.cambios,
       }),
     );
-  }, [filters.marca]);
+  }, []);
 
   useSeo({
     title: "Estoque de Carros Seminovos | JR Veículos - Salto do Itararé",
@@ -219,7 +219,12 @@ export const Vehicles: React.FC = () => {
                 />
                 <input
                   value={filters.marca || filters.modelo || ""}
-                  onChange={(e) => updateBrand(e.target.value || undefined)}
+                  onChange={(e) =>
+                    updateFilter({
+                      marca: e.target.value || undefined,
+                      modelo: undefined,
+                    })
+                  }
                   placeholder="Buscar marca ou modelo"
                   className={`${filterInputClass} pl-9`}
                 />
@@ -227,7 +232,12 @@ export const Vehicles: React.FC = () => {
 
               <select
                 value={filters.marca || ""}
-                onChange={(e) => updateBrand(e.target.value || undefined)}
+                onChange={(e) =>
+                  updateFilter({
+                    marca: e.target.value || undefined,
+                    modelo: undefined,
+                  })
+                }
                 className={filterSelectClass}
               >
                 <option value="">Todas as marcas</option>
@@ -246,7 +256,7 @@ export const Vehicles: React.FC = () => {
                 className={filterSelectClass}
               >
                 <option value="">Todos os modelos</option>
-                {filterOptions.modelos.map((modelo) => (
+                {modelsForSelectedBrand.map((modelo) => (
                   <option key={modelo} value={modelo}>
                     {modelo}
                   </option>
