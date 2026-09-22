@@ -4,6 +4,21 @@ import { Vehicle, VehicleFilters, PaginatedResponse } from '@/types';
 
 const ITEMS_PER_PAGE = 12;
 
+const uniqueTextOptions = (values?: (string | null | undefined)[]) => {
+  const seen = new Set<string>();
+
+  return (values || []).reduce<string[]>((options, value) => {
+    const normalized = value?.trim();
+    const key = normalized?.toLocaleLowerCase('pt-BR');
+
+    if (!normalized || !key || seen.has(key)) return options;
+
+    seen.add(key);
+    options.push(normalized);
+    return options;
+  }, []);
+};
+
 export const vehicleService = {
   /**
    * Obter todos os veículos com filtros
@@ -144,7 +159,7 @@ export const vehicleService = {
   /**
    * Obter opções únicas para filtros
    */
-  async getFilterOptions(): Promise<{
+  async getFilterOptions(marca?: string): Promise<{
     marcas: string[];
     modelos: string[];
     anos: number[];
@@ -153,6 +168,15 @@ export const vehicleService = {
     cambios: string[];
   }> {
     try {
+      let modelosQuery = supabase
+        .from(TABLES.VEHICLES)
+        .select('modelo')
+        .eq('status', 'disponivel');
+
+      if (marca) {
+        modelosQuery = modelosQuery.ilike('marca', `%${marca}%`);
+      }
+
       const [marcas, modelos, anos, categorias, combustiveis, cambios] =
         await Promise.all([
           supabase
@@ -160,15 +184,11 @@ export const vehicleService = {
             .select('marca')
             .eq('status', 'disponivel')
             .then(({ data }) =>
-              [...new Set(data?.map((v) => v.marca))].filter(Boolean)
+              uniqueTextOptions(data?.map((v) => v.marca))
             ),
-          supabase
-            .from(TABLES.VEHICLES)
-            .select('modelo')
-            .eq('status', 'disponivel')
-            .then(({ data }) =>
-              [...new Set(data?.map((v) => v.modelo))].filter(Boolean)
-            ),
+          modelosQuery.then(({ data }) =>
+            uniqueTextOptions(data?.map((v) => v.modelo))
+          ),
           supabase
             .from(TABLES.VEHICLES)
             .select('ano')
@@ -181,21 +201,21 @@ export const vehicleService = {
             .select('categoria')
             .eq('status', 'disponivel')
             .then(({ data }) =>
-              [...new Set(data?.map((v) => v.categoria))].filter(Boolean)
+              uniqueTextOptions(data?.map((v) => v.categoria))
             ),
           supabase
             .from(TABLES.VEHICLES)
             .select('combustivel')
             .eq('status', 'disponivel')
             .then(({ data }) =>
-              [...new Set(data?.map((v) => v.combustivel))].filter(Boolean)
+              uniqueTextOptions(data?.map((v) => v.combustivel))
             ),
           supabase
             .from(TABLES.VEHICLES)
             .select('cambio')
             .eq('status', 'disponivel')
             .then(({ data }) =>
-              [...new Set(data?.map((v) => v.cambio))].filter(Boolean)
+              uniqueTextOptions(data?.map((v) => v.cambio))
             ),
         ]);
 
